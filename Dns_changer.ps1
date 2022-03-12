@@ -7,9 +7,8 @@ PowerShell.exe -windowstyle hidden {
 #---------
 
 #IP
-$DnsDefaultIp = "192.168.1.1" #The default DNS you use (automatic configuration)
-$DnsIpPrimary = "1.1.1.1" #Your preferred DNS
-$DnsIpSecondary = "1.0.0.1" #Your auxiliary DNS
+$DnsIpPrimary = "8.8.8.8" #Your preferred DNS
+$DnsIpSecondary = "8.8.4.4" #Your auxiliary DNS
 
 #Interface Alias
 $InterfaceAlias = "Ethernet" #Your DNS interface to modify 
@@ -24,13 +23,13 @@ $DnsServerAddress = $DnsServer.Address
 $NewDnsServerAdressPrimary = [string]
 $NewDnsServerAdressSecondary = [string]
 
-If($DnsServerAddress -eq $DnsDefaultIp)
+If($DnsServerAddress -eq $DnsIpPrimary)
 {
- $NewDnsServerAdressPrimary = $DnsIpPrimary
- $NewDnsServerAdressSecondary = $DnsIpSecondary 
-}else{
  $NewDnsServerAdressPrimary = "Automatic (DHCP)"
- $NewDnsServerAdressSecondary = ""
+ $NewDnsServerAdressSecondary = "" 
+}else{
+ $NewDnsServerAdressPrimary = $DnsIpPrimary
+ $NewDnsServerAdressSecondary = $DnsIpSecondary
 }
 
 #Loading the library
