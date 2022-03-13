@@ -18,7 +18,7 @@ $DnsIpSecondary = "0.0.0.0" #Your auxiliary DNS
 $InterfaceAlias = "Interface" #Your DNS interface to modify
 ```
 
-To find the interface to be modified, run:
+To find the interface to be modified, run this command in PowerShell:
 
 ```powershell
 Get-DnsClientServerAddress
@@ -44,10 +44,10 @@ Here is a tutorial:
 
 ![Untitled](img/Untitled%202.png)
 
-2. Paste the following command (including the path to your PowerShell file)
+2. Paste the following command (including the path to the PowerShell script)
 
 ```powershell
-powershell.exe -command "& 'Path to your PowerShell script'"
+powershell.exe -command "& 'C:\Path_to_the_PowerShell_script'"
 ```
 
 ![Untitled](img/Untitled%203.png)
