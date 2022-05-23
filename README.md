@@ -13,6 +13,7 @@ It can be used to access sites blocked by your default DNS for example.
 #IP
 $DnsIpPrimary = "0.0.0.0" #Your preferred DNS
 $DnsIpSecondary = "0.0.0.0" #Your auxiliary DNS
+$DnsDefault = "192.168.1.1" #Your default DNS
 
 #Interface Alias
 $InterfaceAlias = "Interface" #Your DNS interface to modify
@@ -24,15 +25,19 @@ To find the interface to be modified, run this command in PowerShell:
 Get-DnsClientServerAddress
 ```
 
+To find the default ip of your DNS, run this command in PowerShell:
+
+```powershell
+Get-DnsClientServerAddress -InterfaceAlias YOUR_INTERFACE -AddressFamily IPv4
+```
+
 ## Usage
 
 The script detects if your DNS configuration is in automatic mode, if it is the case it will propose you to change your DNS to the server you have defined.
-
 You can return to your automatic configuration by re-running the script.
+You also have the possibility to enter a custom DNS.
 
-![Untitled](img/Untitled.png)
-
-![Untitled](img/Untitled%201.png)
+![Untitled](img/Untitled%208.png)
 
 ## Creating a shortcut
 
