@@ -37,19 +37,17 @@ The script detects if your DNS configuration is in automatic mode, if it is the 
 You can return to your automatic configuration by re-running the script.
 You also have the possibility to enter a custom DNS.
 
+To run this script you must run it as administrator.
+
 ![Untitled](img/Untitled%208.png)
 
-## Creating a shortcut
+### Creating a shortcut
 
 For a simpler and faster use it is recommended to create a shortcut.
 
 Here is a tutorial:
 
-1. Right click in your file explorer or on your desktop and then Create a shortcut
-
-![Untitled](img/Untitled%202.png)
-
-2. Paste the following command (including the path to the PowerShell script)
+1. Create a shortcut and paste the following command (including the path to the PowerShell script) :
 
 ```powershell
 powershell.exe -command "& 'C:\Path_to_the_PowerShell_script'"
@@ -57,18 +55,6 @@ powershell.exe -command "& 'C:\Path_to_the_PowerShell_script'"
 
 ![Untitled](img/Untitled%203.png)
 
-3. Give your shortcut a name
-
-![Untitled](img/Untitled%204.png)
-
-4. To automatically run the script in administrator mode, right click and select Properties.
-
-![Untitled](img/Untitled%205.png)
-
-5. Then click on Advanced
-
-![Untitled](img/Untitled%206.png)
-
-6. Then check the box Run as administrator and validate with OK
+2. To automatically run the script in administrator mode, go to : Properties, Advanced. Then check : Run as administrator.
 
 ![Untitled](img/Untitled%207.png)
