@@ -3,16 +3,16 @@
 PowerShell.exe -windowstyle hidden {
 
 #---------
-#Constants
+#DEFAULT CONFIGURATION
 #---------
 
-#IP
+#DNS
 $DnsIpPrimary = "8.8.8.8" #Your preferred DNS
 $DnsIpSecondary = "8.8.4.4" #Your auxiliary DNS
 $DnsDefault = "192.168.1.1" #Your default DNS
 
 #Interface Alias
-$InterfaceAlias = "Ethernet" #Your DNS interface to modify 
+$InterfaceAlias = "Ethernet" #Your network interface
 
 #---------
 
@@ -41,51 +41,56 @@ Add-Type -AssemblyName Microsoft.VisualBasic
 #DNS selection validation input
 $Result = [Microsoft.VisualBasic.Interaction]::MsgBox("Your current DNS configuration is: $DnsServerAddress
 Configuration to be applied: $NewDnsServerAdressPrimary ; $NewDnsServerAdressSecondary
-Click on [no] to change the configuration", 4131,"DNS-changer")
+Click [no] to enter a custom DNS", 4131,"DNS-changer")
 
-#Information window
-function Info-Confirm ([string]$InfoText) {
+#Notification window
+function Show-Notification ([string]$InfoText) {
     [Microsoft.VisualBasic.Interaction]::MsgBox("$InfoText", 4160,"DNS-changer")
 }
 
 #Change DNS function
 # Param :
 # $DnsPrimary and $DnsSecondary => [string]: New DNS server addresses
-# $isDefault => [bool] is the default configuration to be applied
-function change-Dns ([string]$DnsPrimary, [string]$DnsSecondary, [bool]$isDefault) {
-    echo $DnsPrimary
+# $isDefault => [bool]: return to the default configuration or not
+function Switch-DNS ([string]$DnsPrimary, [string]$DnsSecondary, [bool]$isDefault) {
     If($isDefault)
     {
         #Reset default configuration
         Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ResetServerAddresses
         $Text = "Modified DNS configuration: " + $DnsPrimary
-        $Info = Info-Confirm $Text
+        Show-Notification $Text
     
-    }else{
+    }
+    else {
         #Set new DNS
         Set-DnsClientServerAddress -InterfaceAlias $InterfaceAlias -ServerAddresses ($DnsPrimary, $DnsSecondary)
         $Text = "Modified DNS configuration: " + $DnsPrimary + " ; " + $DnsSecondary
-        $Info = Info-Confirm $Text
+        Show-Notification $Text
     }
 }
 
 #Change DNS
 If($Result -eq 6) 
 { 
-    #If yes  
-    $change = change-Dns $NewDnsServerAdressPrimary $NewDnsServerAdressSecondary $default
-}elseif ($Result -eq 7) {
-    #If no
+    #Yes
+    Switch-DNS $NewDnsServerAdressPrimary $NewDnsServerAdressSecondary $default
+}
+elseif ($Result -eq 7) {
+    #No
     #Input new Dns server adress primary and secondary
     $NewDnsServerAdressPrimary = [Microsoft.VisualBasic.Interaction]::InputBox('Enter your preferred DNS','DNS-changer', $DnsIpPrimary)
     $NewDnsServerAdressSecondary = [Microsoft.VisualBasic.Interaction]::InputBox('Enter your auxiliary DNS','DNS-changer', $DnsIpSecondary)
-    $change = change-Dns $NewDnsServerAdressPrimary $NewDnsServerAdressSecondary $false
+    If($NewDnsServerAdressPrimary -ne "") {
+        Switch-DNS $NewDnsServerAdressPrimary $NewDnsServerAdressSecondary $false
+    }
+    else {
+        Show-Notification "Modification cancelled"
+    }
     
-}else{
+}
+else {
     #Cancel
-    $Info = Info-Confirm "Modification cancelled"
+    Show-Notification "Modification cancelled"
 }
 
-
-#End 
 }

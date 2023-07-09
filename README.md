@@ -7,28 +7,22 @@ It can be used to access sites blocked by your default DNS for example.
 
 ## Configuration
 
-1. Open the script with PowerShell ISE and set the constants:
+1. Open the script and change the default configuration (Google DNS), your default DNS and your network interface name:
 
 ```powershell
-#IP
-$DnsIpPrimary = "0.0.0.0" #Your preferred DNS
-$DnsIpSecondary = "0.0.0.0" #Your auxiliary DNS
+#DNS
+$DnsIpPrimary = "8.8.8.8" #Your preferred DNS
+$DnsIpSecondary = "8.8.4.4" #Your auxiliary DNS
 $DnsDefault = "192.168.1.1" #Your default DNS
 
 #Interface Alias
-$InterfaceAlias = "Interface" #Your DNS interface to modify
+$InterfaceAlias = "Ethernet" #Your network interface
 ```
 
-To find the interface to be modified, run this command in PowerShell:
+2. To find the name of your network interface and the default ip of your DNS, run this command in PowerShell:
 
 ```powershell
 Get-DnsClientServerAddress
-```
-
-To find the default ip of your DNS, run this command in PowerShell:
-
-```powershell
-Get-DnsClientServerAddress -InterfaceAlias YOUR_INTERFACE -AddressFamily IPv4
 ```
 
 ## Usage
@@ -37,24 +31,22 @@ The script detects if your DNS configuration is in automatic mode, if it is the 
 You can return to your automatic configuration by re-running the script.
 You also have the possibility to enter a custom DNS.
 
-To run this script you must run it as administrator.
+**To run this script you must run it as administrator.**
 
-![Untitled](img/Untitled%208.png)
+![Example](img/example.png)
 
 ### Creating a shortcut
 
-For a simpler and faster use it is recommended to create a shortcut.
+For a simpler and faster use create a shortcut.
 
-Here is a tutorial:
+**Here is a little tutorial:**
 
 1. Create a shortcut and paste the following command (including the path to the PowerShell script) :
 
 ```powershell
-powershell.exe -command "& 'C:\Path_to_the_PowerShell_script'"
+powershell.exe -command "& 'PATH_TO_THE_POWERSHELL_SCRIPT'"
 ```
 
-![Untitled](img/Untitled%203.png)
+![Shortcut](img/shortcut.png)
 
-2. To automatically run the script in administrator mode, go to : Properties, Advanced. Then check : Run as administrator.
-
-![Untitled](img/Untitled%207.png)
+2. To automatically run the script in administrator mode, go to **> Properties > Advanced**. Then check : **Run as administrator**.
