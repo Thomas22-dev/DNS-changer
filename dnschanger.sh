@@ -9,16 +9,17 @@
 # echo -e "Configuration to be apply on $con_id :\nPrimary DNS : $dns_p\nSecondary DNS : $dns_s"
 
 # Default variable values
-verbose_mode=false
-output_file=""
+auto_detect=false
+i_mode=false
+interface=""
 
 # Function to display script usage
 usage() {
-    echo "Usage: $0 [OPTIONS]"
+    echo "Usage: dnscli {a|i}[h]"
     echo "Options:"
-    echo " -h, --help      Display this help message"
-    echo " -v, --verbose   Enable verbose mode"
-    echo " -f, --file      FILE Specify an output file"
+    echo " -h, --help                   Display this help message"
+    echo " -a, --auto                   Automatically selects the network interface to be modified"
+    echo " -i, --interface=INTERFACE    Specifies the network interface to be modified"
 }
 
 # Functions to handle arguents
@@ -56,21 +57,27 @@ handle_options() {
                 usage
                 exit 0
                 ;;
-            -v | --verbose)
-                verbose_mode=true
-                ;;
-            -f | --file*)
-                if ! handle_argument output_file $@; then
-                    echo "File not specified." >&2
+            -a | --auto)
+                if [ "$i_mode" = true ]; then
+                    echo "Cannot use interface and automatic mode at the same time."
                     usage
                     exit 1
                 fi
-                #if ! has_argument $@; then
-                #    echo "File not specified." >&2
-                #    usage
-                #    exit 1
-                #fi
-                #output_file=$(extract_argument $@)
+                auto_detect=true
+                interface=$(nmcli -g NAME con show --active | grep -v -x -m 1 "lo")
+                ;;
+            -i | --interface*)
+                if [ "$auto_detect" = true ]; then
+                    echo "Cannot use interface and automatic mode at the same time."
+                    usage
+                    exit 1
+                fi
+                if ! handle_argument interface $@; then
+                    echo "Interface not specified." >&2
+                    usage
+                    exit 1
+                fi
+                i_mode=true
                 if shift_argument $@; then
                     shift
                 fi
@@ -89,10 +96,10 @@ handle_options() {
 handle_options "$@"
 
 # Perform the desired actions based on the provided flags and arguments
-if [ "$verbose_mode" = true ]; then
-    echo "Verbose mode enabled."
+if [ "$auto_detect" = true ]; then
+    echo "Automatic detection enabled."
 fi
 
-if [ -n "$output_file" ]; then
-    echo "Output file specified: $output_file"
+if [ -n "$interface" ]; then
+    echo "Interface to be modified: $interface"
 fi
