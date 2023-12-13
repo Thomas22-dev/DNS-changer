@@ -1,25 +1,33 @@
 #!/bin/bash
 
-# Find the first active connection except loopback
-# con_id=$(nmcli -g NAME con show --active | grep -v -x -m 1 "lo")
-
-# read -p "Enter your primary dns adress : " dns_p
-# read -p "Enter your secondary dns adress : " dns_s
-
-# echo -e "Configuration to be apply on $con_id :\nPrimary DNS : $dns_p\nSecondary DNS : $dns_s"
-
 # Default variable values
 auto_detect=false
-i_mode=false
-interface=""
+connection_name=""
+
+# Function to choose an active connection
+auto_detection() {
+    local __outputcon=$1
+    # Find the first active connection except loopback
+    local c=$(nmcli -g NAME con show --active | grep -v -x -m 1 "lo")
+    if [ -z "$c" ]; then
+        echo "No active connection found." >&2
+        return 1
+    fi
+    eval $__outputcon="'$c'"
+}
+
+# Function to check if a connection is active and exists 
+is_active() {
+    [[ $(nmcli -g NAME con show --active | grep $1) ]];
+}
 
 # Function to display script usage
 usage() {
-    echo "Usage: dnscli {a|i}[h]"
+    echo "Usage: dnscli {a|c}[h]"
     echo "Options:"
     echo " -h, --help                   Display this help message"
-    echo " -a, --auto                   Automatically selects the network interface to be modified"
-    echo " -i, --interface=INTERFACE    Specifies the network interface to be modified"
+    echo " -a, --auto                   Automatically selects the connection to be modified"
+    echo " -c, --connection=CONNECTION  Specifies the connection to be modified"
 }
 
 # Functions to handle arguents
@@ -58,26 +66,31 @@ handle_options() {
                 exit 0
                 ;;
             -a | --auto)
-                if [ "$i_mode" = true ]; then
-                    echo "Cannot use interface and automatic mode at the same time."
+                if [ -n "$connection_name" ]; then
+                    echo "Cannot use connection and automatic mode at the same time." >&2
                     usage
                     exit 1
                 fi
                 auto_detect=true
-                interface=$(nmcli -g NAME con show --active | grep -v -x -m 1 "lo")
+                if ! auto_detection connection_name; then
+                    exit 1
+                fi
                 ;;
-            -i | --interface*)
+            -c | --connection*)
                 if [ "$auto_detect" = true ]; then
-                    echo "Cannot use interface and automatic mode at the same time."
+                    echo "Cannot use connection and automatic mode at the same time." >&2
                     usage
                     exit 1
                 fi
-                if ! handle_argument interface $@; then
-                    echo "Interface not specified." >&2
+                if ! handle_argument connection_name $@; then
+                    echo "Connection not specified." >&2
                     usage
                     exit 1
                 fi
-                i_mode=true
+                if ! is_active $connection_name; then
+                    echo "The specified connection isn't active or doesn't exist"
+                    exit 1
+                fi
                 if shift_argument $@; then
                     shift
                 fi
@@ -93,13 +106,16 @@ handle_options() {
 }
 
 # Main script execution
+if [ "$#" = 0 ]; then
+    usage
+    exit 1
+fi
 handle_options "$@"
 
-# Perform the desired actions based on the provided flags and arguments
 if [ "$auto_detect" = true ]; then
     echo "Automatic detection enabled."
 fi
 
-if [ -n "$interface" ]; then
-    echo "Interface to be modified: $interface"
+if [ -n "$connection_name" ]; then
+    echo "Connection to be modified: $connection_name"
 fi
