@@ -1,8 +1,15 @@
 #!/bin/bash
 
 # Default variable values
-auto_detect=false
 connection_name=""
+
+# Function to display script usage
+usage() {
+    echo "Usage: dnscli {a|c}[h]"
+    echo "Options:"
+    echo " -h, --help                   Display this help message"
+    echo " -c, --connection=CONNECTION  Specifies the connection to be modified, set CONNECTION to 'auto' to automatically choose the connection"
+} 
 
 # Function to choose an active connection
 auto_detection() {
@@ -19,15 +26,6 @@ auto_detection() {
 # Function to check if a connection is active and exists 
 is_active() {
     [[ $(nmcli -g NAME con show --active | grep $1) ]];
-}
-
-# Function to display script usage
-usage() {
-    echo "Usage: dnscli {a|c}[h]"
-    echo "Options:"
-    echo " -h, --help                   Display this help message"
-    echo " -a, --auto                   Automatically selects the connection to be modified"
-    echo " -c, --connection=CONNECTION  Specifies the connection to be modified"
 }
 
 # Functions to handle arguents
@@ -66,26 +64,18 @@ handle_options() {
                 exit 0
                 ;;
             -a | --auto)
-                if [ -n "$connection_name" ]; then
-                    echo "Cannot use connection and automatic mode at the same time." >&2
-                    usage
-                    exit 1
-                fi
-                auto_detect=true
-                if ! auto_detection connection_name; then
-                    exit 1
-                fi
+                echo "Not implemented"
                 ;;
             -c | --connection*)
-                if [ "$auto_detect" = true ]; then
-                    echo "Cannot use connection and automatic mode at the same time." >&2
-                    usage
-                    exit 1
-                fi
                 if ! handle_argument connection_name $@; then
                     echo "Connection not specified." >&2
                     usage
                     exit 1
+                fi
+                if [ "$connection_name" = auto ]; then
+                    if ! auto_detection connection_name; then
+                        exit 1
+                    fi
                 fi
                 if ! is_active $connection_name; then
                     echo "The specified connection isn't active or doesn't exist"
@@ -111,10 +101,6 @@ if [ "$#" = 0 ]; then
     exit 1
 fi
 handle_options "$@"
-
-if [ "$auto_detect" = true ]; then
-    echo "Automatic detection enabled."
-fi
 
 if [ -n "$connection_name" ]; then
     echo "Connection to be modified: $connection_name"
