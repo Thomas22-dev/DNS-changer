@@ -2,13 +2,15 @@
 
 # Default variable values
 connection_name=""
+addreses=""
 
 # Function to display script usage
 usage() {
-    echo "Usage: dnscli {a|c}[h]"
+    echo "Usage: dnscli [options]"
     echo "Options:"
     echo " -h, --help                   Display this help message"
     echo " -c, --connection=CONNECTION  Specifies the connection to be modified, set CONNECTION to 'auto' to automatically choose the connection"
+    echo " -d, --dns='ADDRESSES'        Specifies one to three nameserver addresses. ADDRESSES must be separated by a comma, for example : '8.8.8.8,8.8.4.4.'"
 } 
 
 # Function to choose an active connection
@@ -63,9 +65,6 @@ handle_options() {
                 usage
                 exit 0
                 ;;
-            -a | --auto)
-                echo "Not implemented"
-                ;;
             -c | --connection*)
                 if ! handle_argument connection_name $@; then
                     echo "Connection not specified." >&2
@@ -79,6 +78,16 @@ handle_options() {
                 fi
                 if ! is_active $connection_name; then
                     echo "The specified connection isn't active or doesn't exist"
+                    exit 1
+                fi
+                if shift_argument $@; then
+                    shift
+                fi
+                ;;
+            -d | --dns*)
+                if ! handle_argument addresses $@; then
+                    echo "Nameserver addresses not specified"
+                    usage
                     exit 1
                 fi
                 if shift_argument $@; then
@@ -105,3 +114,19 @@ handle_options "$@"
 if [ -n "$connection_name" ]; then
     echo "Connection to be modified: $connection_name"
 fi
+
+# Replace comma by a space for nmcli
+separator=","
+replacement_char=" "
+nmcli_arg=$(echo "$addresses" | sed "s/$separator/$replacement_char/g")
+
+
+if [ -n "$addresses" ]; then
+    echo "Nameserver addresses to be applied : $nmcli_arg"
+fi
+
+# Change DNS using nmcli
+
+echo "Previous DNS adresses : $(nmcli -g IP4.DNS con show $connection_name)" 
+
+sudo nmcli connection modify $connection_name ipv4.dns $nmcli_arg
