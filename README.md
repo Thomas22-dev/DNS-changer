@@ -1,9 +1,38 @@
-# DNS-changer
+# :globe_with_meridians: DNS-changer
 
-## About the project
+Scripts that makes changing DNS faster and easier on Linux and Windows.
 
-This is a PowerShell script that makes changing DNS faster and easier.
-It can be used to access sites blocked by your default DNS for example.
+- [Linux cli (Bash script)](#linux)
+- [Windows (PowerShell script)](#windows)
+
+# Linux
+
+Requires : NetworkManager
+
+## Usage
+
+```shell
+./dnscli.sh -c [CONNECTION NAME] -d [NAMESERVER]
+```
+Example : 
+```shell
+./dnscli.sh -c auto -d 8.8.8.8,8.8.8.4.4
+```
+
+## Documentation
+
+```shell
+./dnscli.sh -h
+```
+```
+Usage: dnscli [options]
+Options:
+ -h, --help                   Display this help message
+ -c, --connection=CONNECTION  Specifies the connection to be modified, set CONNECTION to 'auto' to automatically choose the connection
+ -d, --dns='ADDRESSES'        Specifies one to three nameserver addresses. ADDRESSES must be separated by a comma, for example : '8.8.8.8,8.8.4.4.'
+```
+
+# Windows
 
 ## Configuration
 
