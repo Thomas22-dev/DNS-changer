@@ -30,6 +30,29 @@ is_active() {
     [[ $(nmcli -g NAME con show --active | grep $1) ]];
 }
 
+# Function to change dns addresses
+change_dns() {
+    # Replace comma by a space for nmcli                                                       
+    local separator=","                                                                              
+    local replacement_char=" " 
+    local nmcli_arg=$(echo "$2" | sed "s/$separator/$replacement_char/g")
+    nmcli connection modify $1 ipv4.dns "$nmcli_arg"
+    nmcli con down $1 >& /dev/null && nmcli con up $1 >& /dev/null
+}
+
+# Function to test if change_dns worked
+check_dns() {
+    local separator=" | "
+    local replacement_char=","
+    local new_dns=$(echo $(nmcli -g IP4.DNS con show $1) | sed "s/$separator/$replacement_char/g")
+    if [[ "$new_dns" == $2,* ]]; then
+        echo "DNS change completed"
+    else
+        echo "DNS change failed"
+        exit 1
+    fi
+}
+
 # Functions to handle arguents
 has_argument() {
     [[ ("$1" == *=* && -n ${1#*=}) || ( ! -z "$2" && "$2" != -*) ]];
@@ -113,20 +136,24 @@ handle_options "$@"
 
 if [ -n "$connection_name" ]; then
     echo "Connection to be modified: $connection_name"
+else
+    echo -e "\nNo connection specified\n"
+    usage
+    exit 1
 fi
 
-# Replace comma by a space for nmcli
-separator=","
-replacement_char=" "
-nmcli_arg=$(echo "$addresses" | sed "s/$separator/$replacement_char/g")
-
-
 if [ -n "$addresses" ]; then
-    echo "Nameserver addresses to be applied : $nmcli_arg"
+    echo "Nameserver addresses to be applied : $addresses"
+else
+    echo -e "\nError : no nameserver addresses specified\n"
+    usage
+    exit 1
 fi
 
 # Change DNS using nmcli
-
 echo "Previous DNS adresses : $(nmcli -g IP4.DNS con show $connection_name)" 
 
-sudo nmcli connection modify $connection_name ipv4.dns $nmcli_arg
+change_dns $connection_name $addresses
+check_dns $connection_name $addresses
+
+echo "New DNS adresses : $(nmcli -g IP4.DNS con show $connection_name)" 
